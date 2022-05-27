@@ -95,7 +95,7 @@ def search(maze, cost, start, end):
     # Cria o nó inicial e final com valores inicializados para g, h e f.
     start_node = Node(None, tuple(start), maze[0][0])
     start_node.g = start_node.h = start_node.f = 0
-    end_node = Node(None, tuple(end), maze[4][4])
+    end_node = Node(None, tuple(end), maze[99][99])
     end_node.g = end_node.h = end_node.f = 0
 
     # print(start_node.parent)
@@ -207,9 +207,8 @@ def search(maze, cost, start, end):
             # print(maze[node_position[0]][node_position[1]])
             # break
 
-            # Certifique-se de que o terreno possa ser percorrido
-            if maze[node_position[0]][node_position[1]] == 'F' or maze[node_position[0]][node_position[1]] == 'B':
-                # print('Sou igual de F')
+            # Verificar Terra / Agua / End
+            if maze[node_position[0]][node_position[1]] != "T" and maze[node_position[0]][node_position[1]] != "E" and maze[node_position[0]][node_position[1]] != "A" and maze[node_position[0]][node_position[1]] != "S":
                 continue
 
             # print(current_node.position[0])
@@ -224,7 +223,6 @@ def search(maze, cost, start, end):
             new_node = Node(current_node, node_position, maze[node_position[0]][node_position[1]])
 
             # print(new_node.parent)
-
             # Adicionar a lista
             children.append(new_node)
 
@@ -238,7 +236,8 @@ def search(maze, cost, start, end):
             # Cria os valores de f, g e h
             # child.g = current_node.g + cost
 
-            # print(child.value)
+            #print(child.value)
+            #print(current_node.value)
 
             if child.value == 'T':
                 child.g = current_node.g + 1
@@ -246,9 +245,18 @@ def search(maze, cost, start, end):
                 child.g = current_node.g + 3
 
             # Custos heurísticos calculados aqui, usando distância euclidiana
-            child.h = (((child.position[0] - end_node.position[0]) ** 2) +
-                       ((child.position[1] - end_node.position[1]) ** 2))  # adicionar a Raiz
 
+            #((99 - x) * 2 + (99 - y)2) * (1 / 2)
+            #child.h = (((99 - child.position[0]) ** 2) +
+             #          ((99 - child.position[1]) ** 2)) * (1/2)# adicionar a Raiz# adicionar a Raiz
+
+            #child.h = math.sqrt((((child.position[0] - end_node.position[0]) ** 2) +
+            #           ((child.position[1] - end_node.position[1]) ** 2)))  # adicionar a Raiz
+
+            child.h = abs(child.position[0] - end_node.position[0]) + abs(child.position[1] - end_node.position[1])
+
+            #math.sqrt(child.h)
+            print(child.h)
             # Com Raiz quadara
             #raiz = math.sqrt(child.h)
             #print(int(raiz))
@@ -271,10 +279,18 @@ def search(maze, cost, start, end):
 if __name__ == '__main__':
 
     maze = [['S', 'F', 'F', 'F', 'F'],
-            ['F', 'T', 'A', 'T', 'F'],
-            ['F', 'T', 'B', 'T', 'F'],
+            ['F', 'A', 'T', 'T', 'F'],
             ['F', 'A', 'B', 'T', 'F'],
+            ['F', 'A', 'A', 'A', 'F'],
             ['F', 'F', 'F', 'F', 'E']]
+
+    maze2 = [['B', 'T', 'B'],
+            ['S', 'B', 'E'],
+            ['B', 'A', 'B']]
+
+    #print('\n'.join([''.join(["{:" ">4}".format(item) for item in row])
+    #                 for row in maze2]))
+    #print("---------------------")
 
     """
             [['S' 'F' 'F' 'F' 'F'],
@@ -286,16 +302,14 @@ if __name__ == '__main__':
 
     df = pd.read_csv('sample-environment.csv', index_col=False)
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-    print(df)
+    #print(df)
 
     start = [0, 0]  # posicão inicial
     end = [99, 99]  # posição final
     cost = 1  # custo por movimento
 
     # salvamos o dataframe numa lista:
-
-    #maze = df.values
-    #print(maze)
+    maze = df.values
 
     path, custoTotal = search(maze, cost, start, end)
 
@@ -304,4 +318,9 @@ if __name__ == '__main__':
 
     print('\n'.join([''.join(["{:" ">4}".format(item) for item in row])
                      for row in path]))
+
+    save = pd.DataFrame(path)
+
+    #Salva o caminho mais curto no arquivo chamdo save.csv
+    save.to_csv('save.csv')
 
