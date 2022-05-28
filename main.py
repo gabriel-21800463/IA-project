@@ -3,6 +3,8 @@ import time
 import numpy as np
 import pandas as pd
 
+from scipy.spatial import distance
+
 class Node:
 
     # Construtor onde recebe os argumentos
@@ -164,8 +166,14 @@ def search(maze, start, end):
             elif child.value == 'A':
                 child.g = current_node.g + 3
 
-            # Custos heurísticos calculados aqui, usando distância Manhattan
-            child.h = abs(child.position[0] - end_node.position[0]) + abs(child.position[1] - end_node.position[1])
+            # Custos heurísticos calculados aqui, usando distância Euclidiana é de 169 (custo total) e 8 segundos (tempo de execução).
+            # child.h = np.sqrt(np.sum(np.square((child.position[0] - end_node.position[0]) + (child.position[1] - end_node.position[1]))))
+
+            # Custos heurísticos calculados aqui, usando distância Chebyshev é de 169 (custo total) e 8 segundos (tempo de execução).
+            #child.h = np.abs((child.position[0] - end_node.position[0]) + (child.position[1] - end_node.position[1])).max()
+
+            # Custos heurísticos calculados aqui, usando distância Manhattan é de 169 (custo total) e 8 segundos (tempo de execução).
+            child.h = np.sum(np.abs((child.position[0] - end_node.position[0]) + (child.position[1] - end_node.position[1])))
             child.f = child.g + child.h
 
             # O filho já está na lista yet_to_visit e o custo g já é menor
